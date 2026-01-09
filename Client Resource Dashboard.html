@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Resource Dashboard</title>
+    <style>
+        :root {
+            --color-primary: #2080a0;
+            --color-primary-hover: #1a6680;
+            --color-primary-active: #0d4d5f;
+            --color-secondary: rgba(94, 82, 64, 0.12);
+            --color-text: #134252;
+            --color-text-secondary: #626c71;
+            --color-bg: #fcfcf9;
+            --color-surface: #ffffff;
+            --color-border: rgba(94, 82, 64, 0.2);
+            --color-success: #208085;
+            --color-warning: #a84b2f;
+            --color-error: #c0152f;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+            color: white;
+            padding: 40px 20px;
+            margin: -20px -20px 30px -20px;
+            text-align: center;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            font-size: 1.1em;
+            opacity: 0.95;
+            margin-top: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--color-border);
+            overflow-x: auto;
+            padding-bottom: 0;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1em;
+            color: var(--color-text-secondary);
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--color-text);
+            background: rgba(32, 128, 160, 0.05);
+        }
+
+        .tab-btn.active {
+            color: var(--color-primary);
+            border-bottom-color: var(--color-primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--color-primary);
+        }
+
+        .card h4 {
+            margin-top: 20px;
+            margin-bottom: 10px;
+            color: var(--color-text);
+        }
+
+        .protein-table, .fiber-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .protein-table th, .fiber-table th {
+            background: var(--color-secondary);
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .protein-table td, .fiber-table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--color-border);
+        }
+
+        .protein-table tr:hover, .fiber-table tr:hover {
+            background: rgba(32, 128, 160, 0.03);
+        }
+
+        .list-item {
+            margin: 12px 0;
+            padding: 12px;
+            background: var(--color-secondary);
+            border-left: 4px solid var(--color-primary);
+            border-radius: 4px;
+        }
+
+        .list-item strong {
+            color: var(--color-primary);
+        }
+
+        .callout {
+            background: rgba(32, 128, 160, 0.1);
+            border-left: 4px solid var(--color-primary);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+
+        .callout.warning {
+            background: rgba(168, 75, 47, 0.1);
+            border-left-color: var(--color-warning);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-box {
+            background: var(--color-secondary);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--color-primary);
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: var(--color-text-secondary);
+            margin-top: 5px;
+        }
+
+        .faq {
+            margin: 20px 0;
+        }
+
+        .faq-item {
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            background: var(--color-secondary);
+            padding: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question:hover {
+            background: rgba(94, 82, 64, 0.2);
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 15px;
+            background: var(--color-surface);
+        }
+
+        .faq-answer.active {
+            display: block;
+        }
+
+        .source {
+            font-size: 0.85em;
+            color: var(--color-text-secondary);
+            font-style: italic;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--color-border);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                gap: 5px;
+            }
+
+            .tab-btn {
+                padding: 10px 12px;
+                font-size: 0.9em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Client Resource Dashboard</h1>
+        <p class="subtitle">Evidence-Based Nutrition & Training Guidance</p>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('nutrition')">💡 Nutrition Q&amp;A</button>
+            <button class="tab-btn" onclick="switchTab('exercise')">💪 Exercise Q&amp;A</button>
+            <button class="tab-btn" onclick="switchTab('calories')">📊 Calorie Calculator</button>
+            <button class="tab-btn" onclick="switchTab('protein')">🥚 Protein Sources</button>
+            <button class="tab-btn" onclick="switchTab('fiber')">🥬 Fiber Sources</button>
+            <button class="tab-btn" onclick="switchTab('groceries')">🛒 Grocery List</button>
+        </div>
+
+        <!-- NUTRITION TAB -->
+        <div id="nutrition" class="tab-content active">
+            <div class="card">
+                <h2>Nutrition Questions &amp; Answers</h2>
+                
+                <div class="faq">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How much protein do I need daily? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>General Guidelines:</strong></p>
+                            <ul>
+                                <li><strong>Muscle Building:</strong> 1.6 g/kg of body weight (0.7 g/lb)</li>
+                                <li><strong>Fat Loss:</strong> 1.8–2.8 g/kg of body weight (0.8–1.3 g/lb)</li>
+                                <li><strong>Athletic Performance:</strong> 1.3–1.8 g/kg of body weight (0.6–0.8 g/lb)</li>
+                                <li><strong>General Population:</strong> 1.2–1.6 g/kg of body weight</li>
+                            </ul>
+                            <p><strong>Key Point:</strong> Total daily protein intake is far more important than timing. If you're eating 120-160g daily, you're hitting the sweet spot for most goals.</p>
+                            <p><strong>Per-Meal Distribution:</strong> Aim for 0.4 g/kg/meal spread across 4+ meals for optimal muscle protein synthesis.</p>
+                            <div class="source">Sources: Alan Aragon, Andrew Coates, Brad Schoenfeld research</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Is timing of protein intake important? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Hierarchy of Importance (in order):</strong></p>
+                            <ol>
+                                <li><strong>Total daily protein</strong> – Get this right first</li>
+                                <li><strong>Distribution throughout the day</strong> – Spread across meals</li>
+                                <li><strong>Timing around workouts</strong> – Less important than the above</li>
+                            </ol>
+                            <p>The research shows that post-workout protein is slightly beneficial, but only if you haven't already consumed protein earlier that day. Don't stress about a 30-minute window; focus on consistent daily intake.</p>
+                            <div class="source">Source: Alan Aragon, Huberman Lab Podcast</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How much fiber should I aim for? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>General Recommendation:</strong> 25–38 grams per day (varies by gender and activity level)</p>
+                            <p><strong>For Athletes:</strong> 30–45 grams per day depending on training intensity</p>
+                            <ul>
+                                <li><strong>Women Athletes:</strong> 30–35 grams</li>
+                                <li><strong>Men Athletes:</strong> 40–45 grams</li>
+                            </ul>
+                            <p><strong>Important:</strong> Increase fiber gradually over 6 weeks to avoid digestive discomfort. Current average intake is only 16–18g, so build up slowly.</p>
+                            <p><strong>Timing Tip:</strong> Avoid high fiber 2–3 hours before intense training to maintain carb availability for performance.</p>
+                            <div class="source">Sources: USDA Guidelines, Brad Schoenfeld, Journal of Sports Sciences</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What's the best approach to fat loss? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Three Pillars:</strong></p>
+                            <ol>
+                                <li><strong>Caloric Deficit:</strong> Create a moderate deficit (300-500 calories below maintenance)</li>
+                                <li><strong>High Protein Intake:</strong> 1.8–2.8 g/kg helps preserve muscle and increase satiety</li>
+                                <li><strong>Consistent Strength Training:</strong> Critical for muscle retention during the deficit</li>
+                            </ol>
+                            <p><strong>Why High Protein?</strong> Protein is more satiating than carbs or fats, helping you feel fuller longer and reducing overall hunger. It also prevents your body from using muscle as energy.</p>
+                            <p><strong>Realistic Expectation:</strong> Losing 0.5–1% of your body weight per week is sustainable. Faster losses often sacrifice muscle mass.</p>
+                            <div class="source">Sources: Alan Aragon, Andrew Coates, Layne Norton</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Can I build muscle on a plant-based diet? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>YES!</strong> But with important considerations:</p>
+                            <ul>
+                                <li><strong>Higher Protein Needed:</strong> You may need slightly more plant protein (25–30g per meal vs. 20–25g animal)</li>
+                                <li><strong>Protein Quality:</strong> Plant proteins have lower DIAAS scores (digestibility), so consume varied sources</li>
+                                <li><strong>Essential Amino Acids:</strong> Vegan diets are sometimes low in lysine, leucine, and methionine</li>
+                                <li><strong>Complete Proteins Matter:</strong> Mix and match sources (e.g., rice + beans, hummus + pita)</li>
+                            </ul>
+                            <p><strong>Key Success Factor:</strong> Consistency with training + adequate total daily protein. The amino acid profile throughout the day matters more than perfection in a single meal.</p>
+                            <div class="source">Sources: VegPlate for Sports, Dietary Protein and Amino Acids in Vegetarian Diets review</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How do I know if I'm eating enough calories? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Track for 3–5 days:</strong> Use an app (MyFitnessPal, Cronometer) to measure your intake.</p>
+                            <p><strong>Look for these signs you're undereating:</strong></p>
+                            <ul>
+                                <li>Constant fatigue or low energy during workouts</li>
+                                <li>Difficulty recovering between sessions</li>
+                                <li>Unintended weight loss despite training hard</li>
+                                <li>Hormonal changes (irregular cycles, low libido)</li>
+                            </ul>
+                            <p><strong>Quick Baseline:</strong> Start at 14–16 calories per pound of body weight if sedentary, 16–18 if moderately active, 18+ if very active. Adjust based on your results.</p>
+                            <div class="source">Source: Andrew Coates, Alan Aragon</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Should I take supplements? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Priority Order:</strong></p>
+                            <ol>
+                                <li><strong>Nail Your Nutrition First:</strong> Food quality and quantity matter infinitely more</li>
+                                <li><strong>Evidence-Backed Supplements:</strong> Protein powder, creatine, caffeine, beta-alanine</li>
+                                <li><strong>Situation-Specific:</strong> Vegan? Consider B12. Low sun exposure? Consider Vitamin D</li>
+                            </ol>
+                            <p><strong>Protein Powder:</strong> Convenient tool to hit daily targets—not magic. Use it to supplement food, not replace it.</p>
+                            <p><strong>Remember:</strong> The best supplement is consistent training + solid nutrition habits.</p>
+                            <div class="source">Source: Eric Trexler, Layne Norton</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What's the difference between complete and incomplete proteins? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Complete Proteins:</strong> Contain all 9 essential amino acids (EAAs) in adequate amounts</p>
+                            <ul>
+                                <li>Animal sources: Meat, fish, eggs, dairy</li>
+                                <li>Plant sources: Soy, tempeh, hemp seeds, chia seeds, spirulina</li>
+                                <li>Build muscle efficiently without combining with other foods</li>
+                            </ul>
+                            <p><strong>Incomplete Proteins:</strong> Missing one or more essential amino acids</p>
+                            <ul>
+                                <li>Examples: Beans, lentils, nuts, grains (individually)</li>
+                                <li><strong>KEY:</strong> You can combine them throughout the day (e.g., rice + beans at lunch, nuts + grains at snack)</li>
+                                <li>Vegans don't need to combine in the same meal—total daily amino acid profile matters more</li>
+                            </ul>
+                            <p><strong>Practical Takeaway:</strong> If you're vegan, varying your protein sources throughout the day gives you complete amino acid coverage. You don't need every meal to be perfectly balanced.</p>
+                            <div class="source">Source: Alan Aragon, VegPlate for Sports</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How do macronutrients affect my energy and performance? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Carbohydrates = Immediate Energy (CNS Fuel)</strong></p>
+                            <ul>
+                                <li>Primary fuel for high-intensity training and the central nervous system</li>
+                                <li>Low carbs? Expect reduced strength, power, and focus</li>
+                                <li><strong>Sweet Spot:</strong> 4–7 grams per kg of body weight depending on activity level</li>
+                            </ul>
+                            <p><strong>Protein = Muscle Building &amp; Satiety</strong></p>
+                            <ul>
+                                <li>Not a fuel source (calories exist, but inefficient for energy)</li>
+                                <li>Essential for recovery and muscle protein synthesis</li>
+                                <li>More satiating than carbs or fats—keeps you full longer</li>
+                            </ul>
+                            <p><strong>Fat = Hormone Production &amp; Satiety</strong></p>
+                            <ul>
+                                <li>Critical for testosterone, estrogen, and overall hormone health</li>
+                                <li>Never drop below 0.3–0.4 g/kg of body weight</li>
+                                <li>Slower digestion = sustained energy between meals</li>
+                            </ul>
+                            <p><strong>Real-World Example:</strong> If you're exhausted during workouts on a low-carb diet, your body is screaming for carbs. Carbs + protein + fat in balanced ratios = stable energy.</p>
+                            <div class="source">Source: Andrew Coates, Brad Schoenfeld</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Can I build muscle while in a caloric deficit? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Yes, but with conditions:</strong></p>
+                            <p><strong>1. Training Status Matters:</strong></p>
+                            <ul>
+                                <li><strong>Beginners:</strong> YES—can build significant muscle in a deficit for 6-12 months ("newbie gains")</li>
+                                <li><strong>Intermediate:</strong> YES—modest muscle gain possible with high protein + progressive overload</li>
+                                <li><strong>Advanced:</strong> Very difficult—expect to lose some muscle even with optimal conditions</li>
+                            </ul>
+                            <p><strong>2. Non-Negotiables:</strong></p>
+                            <ul>
+                                <li>High protein intake (1.8–2.2 g/kg—at the higher end)</li>
+                                <li>Progressive overload in training (get stronger, even if lighter weights)</li>
+                                <li>Moderate deficit only (300-500 calories max)</li>
+                                <li>Adequate sleep and recovery</li>
+                            </ul>
+                            <p><strong>3. Realistic Expectations:</strong></p>
+                            <ul>
+                                <li>You might gain 2-5 lbs of muscle while losing 5-15 lbs of fat (recomposition)</li>
+                                <li>Progress will be slower than eating in a surplus</li>
+                                <li>This is NOT a time to chase new 1RMs—maintain strength instead</li>
+                            </ul>
+                            <div class="source">Source: Alan Aragon, Layne Norton</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What should I eat before and after workouts? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>PRE-WORKOUT (1-3 hours before):</strong></p>
+                            <ul>
+                                <li><strong>Carbs:</strong> 1–4 grams per kg of body weight (depending on workout length)</li>
+                                <li><strong>Protein:</strong> 0.25–0.4 grams per kg</li>
+                                <li><strong>Fat:</strong> Minimal (slows digestion, can cause discomfort)</li>
+                                <li><strong>Hydration:</strong> 16–20 oz water 2-3 hours before</li>
+                                <li><strong>Examples:</strong> Oatmeal + banana, rice + chicken, toast + jam</li>
+                            </ul>
+                            <p><strong>POST-WORKOUT (Within 2 hours after):</strong></p>
+                            <ul>
+                                <li><strong>Carbs:</strong> 0.8–1.2 grams per kg (replenish muscle glycogen)</li>
+                                <li><strong>Protein:</strong> 0.2–0.4 grams per kg (muscle repair)</li>
+                                <li><strong>Timing:</strong> Eat within 2 hours, but don't stress the "anabolic window"—total daily intake matters more</li>
+                                <li><strong>Examples:</strong> Chicken + rice, fish + sweet potato, protein shake + fruit</li>
+                            </ul>
+                            <p><strong>IMPORTANT:</strong> These are just guidelines. If you've eaten balanced meals throughout the day, you don't need special post-workout nutrition. Total daily intake trumps timing.</p>
+                            <div class="source">Source: Alan Aragon, Andrew Coates</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EXERCISE TAB -->
+        <div id="exercise" class="tab-content">
+            <div class="card">
+                <h2>Exercise Programming &amp; Training Q&amp;A</h2>
+                
+                <div class="faq">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What are the three unbreakable rules of a good program? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>1. Progressive Overload</strong></p>
+                            <ul>
+                                <li>You must get 1% better regularly (doesn't have to be every session)</li>
+                                <li>Can be: more weight, more reps, more sets, better technique, longer time under tension</li>
+                                <li>Without progression, your body won't change</li>
+                            </ul>
+                            <p><strong>2. Flexible Periodization</strong></p>
+                            <ul>
+                                <li>Your program should adapt to your daily needs</li>
+                                <li>Life stress, sleep quality, recovery state matter</li>
+                                <li>You don't have to do exactly what's written if you feel terrible</li>
+                                <li>Adjusting intensity/volume on the fly keeps you consistent long-term</li>
+                            </ul>
+                            <p><strong>3. Consistency</strong></p>
+                            <ul>
+                                <li>More important than program design, rep ranges, or exercises</li>
+                                <li>Pick something YOU will actually do</li>
+                                <li>Momentum from doing the program matters more than perfect programming</li>
+                            </ul>
+                            <div class="source">Source: Jordan Syatt</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How many times per week should I train? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Frequency Options:</strong></p>
+                            <div class="grid">
+                                <div class="stat-box">
+                                    <div class="stat-number">2x/week</div>
+                                    <div class="stat-label">Full Body<br><small>Minimum for results</small></div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">3x/week</div>
+                                    <div class="stat-label">Upper/Lower or Full Body<br><small>Good balance</small></div>
+                                </div>
+                                <div class="stat-box">
+                                    <div class="stat-number">4x/week</div>
+                                    <div class="stat-label">Upper/Lower/Upper/Lower<br><small>Best for results</small></div>
+                                </div>
+                            </div>
+                            <p><strong>Key Insight:</strong> 3–4x per week shows the best long-term results, but 2x per week works if it's what you'll stick to.</p>
+                            <p><strong>Rule:</strong> Rest 48 hours before training the same muscle group again.</p>
+                            <div class="source">Source: Brad Schoenfeld, Jordan Syatt</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What rep ranges should I use for different goals? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>The Repetition Continuum:</strong></p>
+                            <ul>
+                                <li><strong>Strength (1–5 reps):</strong> 80–100% of 1RM, heavy loads</li>
+                                <li><strong>Hypertrophy (6–12 reps):</strong> 60–80% of 1RM, moderate loads</li>
+                                <li><strong>Endurance (15+ reps):</strong> Below 60% of 1RM, light loads</li>
+                            </ul>
+                            <p><strong>IMPORTANT:</strong> Muscle growth can happen in ALL rep ranges. What matters more is:</p>
+                            <ol>
+                                <li>Taking sets close to failure (RPE 7–9)</li>
+                                <li>Doing enough total volume per muscle group</li>
+                                <li>Progressive overload within your rep range</li>
+                            </ol>
+                            <p><strong>Practical Takeaway:</strong> Mix rep ranges. Use some heavy (3–5 reps) for strength adaptations and some moderate (8–12 reps) for hypertrophy.</p>
+                            <div class="source">Source: Brad Schoenfeld, Greg Nuckols</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How much volume should I do per muscle group? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Minimum Effective Volume:</strong> 10 sets per week per muscle group to see growth</p>
+                            <p><strong>Optimal Range:</strong> 10–20 sets per week per muscle</p>
+                            <p><strong>Diminishing Returns:</strong> Beyond 20 sets/week, gains slow down significantly</p>
+                            <p><strong>Practical Example (Chest):</strong></p>
+                            <ul>
+                                <li>Monday: 5 sets bench press + 5 sets incline press = 10 sets</li>
+                                <li>Thursday: 5 sets dumbbell press = 5 sets</li>
+                                <li>Total: 15 sets/week (optimal zone)</li>
+                            </ul>
+                            <p><strong>Note:</strong> Even beginners benefit from starting with 3–5 sets per exercise. Your conditioning and CNS need to adapt before you jump to high volume.</p>
+                            <div class="source">Source: Brad Schoenfeld, Stronger by Science</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How long should I rest between sets? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>General Guidelines:</strong></p>
+                            <ul>
+                                <li><strong>Strength (1–5 reps):</strong> 3–5 minutes (full nervous system recovery)</li>
+                                <li><strong>Hypertrophy (6–12 reps):</strong> 60–90 seconds (balance recovery and fatigue)</li>
+                                <li><strong>Endurance (15+ reps):</strong> 30–60 seconds (metabolic stress)</li>
+                            </ul>
+                            <p><strong>Practical Tip:</strong> If you can't complete your next set with good form, you need more rest. Better to rest longer than to grind through bad reps.</p>
+                            <div class="source">Source: Brad Schoenfeld</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What exercises should I prioritize? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Principle: Compound Movements First</strong></p>
+                            <p><strong>Essential Compound Lifts:</strong></p>
+                            <ul>
+                                <li><strong>Squat:</strong> Leg press, hack squat, goblet squat</li>
+                                <li><strong>Hinge:</strong> Deadlift, Romanian deadlift, good mornings</li>
+                                <li><strong>Push:</strong> Bench press, overhead press, dips</li>
+                                <li><strong>Pull:</strong> Pull-ups, rows, lat pulldown</li>
+                            </ul>
+                            <p><strong>Why?</strong> Compound movements recruit more muscle, allow heavier loads, and give you the best bang for your buck.</p>
+                            <p><strong>Accessory Work:</strong> After 1–2 compounds per muscle group, add isolation exercises if time/energy allows.</p>
+                            <div class="source">Source: Jordan Syatt, Greg Nuckols</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How do I increase intensity without adding weight? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Intensity Techniques (Progressive Overload Without New Weight):</strong></p>
+                            <ol>
+                                <li><strong>Add Reps:</strong> If you did 8 reps last week, do 9 this week with same weight</li>
+                                <li><strong>Add Sets:</strong> Start with 3 sets, progress to 4 sets over weeks</li>
+                                <li><strong>Decrease Rest Time:</strong> Reduce 90 seconds to 75 seconds between sets</li>
+                                <li><strong>Improve Technique:</strong> Better form = more muscle engagement</li>
+                                <li><strong>Time Under Tension:</strong> Slow 3-second lower, 1-second pause, 1-second press = more difficulty</li>
+                                <li><strong>Range of Motion:</strong> Go deeper/fuller range = harder stimulus</li>
+                            </ol>
+                            <p><strong>Smart Progression:</strong> Mix these tactics. Don't try to use all 6 at once—pick 1–2 per week and rotate.</p>
+                            <div class="source">Source: Jordan Syatt</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How do I know if my workout program is actually working? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Measurable Signs of Progress:</strong></p>
+                            <ul>
+                                <li><strong>Strength:</strong> Lifting heavier weights or more reps with same weight</li>
+                                <li><strong>Muscle Size:</strong> Clothes fitting tighter, circumference measurements increasing</li>
+                                <li><strong>Work Capacity:</strong> Completing more total volume in same timeframe</li>
+                                <li><strong>Recovery:</strong> Less soreness, better energy between sessions</li>
+                                <li><strong>Performance:</strong> Improved endurance, speed, or power output</li>
+                            </ul>
+                            <p><strong>How to Track:</strong></p>
+                            <ul>
+                                <li>Keep a simple workout log (weight × reps × sets)</li>
+                                <li>Take progress photos monthly</li>
+                                <li>Measure circumferences (chest, arm, waist, thigh) monthly</li>
+                                <li>Track body weight 1–2x per week (average the readings)</li>
+                            </ul>
+                            <p><strong>Timeline:</strong> Give any program 8–12 weeks of consistent execution before judging. Smaller changes compound.</p>
+                            <div class="source">Source: Greg Nuckols, Brad Schoenfeld</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What if I plateau and stop seeing gains? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Plateaus Are Normal and Expected.</strong> They signal adaptation—a sign your body got stronger!</p>
+                            <p><strong>Troubleshooting Checklist:</strong></p>
+                            <ul>
+                                <li><strong>Are you progressively overloading?</strong> Track your lifts. If weight/reps haven't changed in 4+ weeks, change something</li>
+                                <li><strong>Is your nutrition adequate?</strong> Plateaus often signal you need more calories or protein</li>
+                                <li><strong>Is sleep sufficient?</strong> 7–9 hours per night. Poor recovery stalls all progress</li>
+                                <li><strong>Are you doing enough volume?</strong> Should be 10–20 sets per muscle per week</li>
+                                <li><strong>Have you tried a deload week?</strong> After 4–6 weeks hard training, take 1 easy week (50% intensity)</li>
+                            </ul>
+                            <p><strong>Common Fixes:</strong></p>
+                            <ol>
+                                <li>Change exercise variations (swap bench for incline press)</li>
+                                <li>Increase frequency (train same muscle 2x instead of 1x per week)</li>
+                                <li>Add more volume gradually (1–2 extra sets per week)</li>
+                                <li>Reset form and ego—go lighter, perfect technique, rebuild</li>
+                            </ol>
+                            <div class="source">Source: Jordan Syatt, Greg Nuckols</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Does it matter what order I do exercises in? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>YES—Exercise Order Affects Performance.</strong></p>
+                            <p><strong>Best Practice: Compound Lifts First</strong></p>
+                            <ul>
+                                <li>When you're fresh, your CNS is primed for heavy, complex movements</li>
+                                <li>Doing isolation first leaves you fatigued for compounds (wastes potential strength gains)</li>
+                                <li><strong>Example Workout Order:</strong></li>
+                                <li>1) Bench Press (primary compound)</li>
+                                <li>2) Incline Dumbbell Press (secondary compound)</li>
+                                <li>3) Cable Flyes (isolation)</li>
+                                <li>4) Dips (accessory)</li>
+                            </ul>
+                            <p><strong>Why This Matters:</strong> Compound lifts demand maximum force and focus. Isolation exercises can be done when fatigued and still effective.</p>
+                            <p><strong>Exception:</strong> If an injury needs pre-activation or warm-up work, that comes first (e.g., shoulder prehab before bench).</p>
+                            <div class="source">Source: Brad Schoenfeld, Jordan Syatt</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Should I train cardio and strength on the same day? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Short Answer: Yes, but with strategy.</strong></p>
+                            <p><strong>If Your Goal is Muscle Gain:</strong></p>
+                            <ul>
+                                <li>Do strength first (when CNS is fresh), cardio second</li>
+                                <li>Keep cardio moderate: 20–30 min at Zone 2 intensity</li>
+                                <li>Avoid excessive cardio (>5 hours/week) as it can interfere with recovery</li>
+                            </ul>
+                            <p><strong>If Your Goal is Fat Loss:</strong></p>
+                            <ul>
+                                <li>Still prioritize strength first</li>
+                                <li>Moderate cardio is fine and helps with caloric deficit</li>
+                                <li>Example: 4 strength days + 2-3 cardio sessions per week</li>
+                            </ul>
+                            <p><strong>If Your Goal is Cardiovascular Fitness:</strong></p>
+                            <ul>
+                                <li>Do cardio first (when energy is highest) or on separate days</li>
+                                <li>Strength training should be maintenance-level (2x/week)</li>
+                            </ul>
+                            <p><strong>Practical Option:</strong> Separate them if possible. Strength one day, cardio another. Your body will thank you with better recovery.</p>
+                            <div class="source">Source: Brad Schoenfeld, Eric Helms</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CALORIE CALCULATOR TAB -->
+        <div id="calories" class="tab-content">
+            <div class="card">
+                <h2>Personalized Calorie &amp; Macro Calculator</h2>
+
+                <div class="callout">
+                    <strong>💡 How This Works:</strong> Enter your info below to get your daily calorie target and macro recommendations based on your goal. Then choose your preferred macro split!
+                </div>
+
+                <div style="background: var(--color-secondary); padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <h3 style="margin-top: 0;">Your Information</h3>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Body Weight (lbs)</label>
+                            <input type="number" id="bodyWeight" class="form-control" placeholder="e.g., 180" oninput="calculateCalories()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Activity Level</label>
+                            <select id="activityLevel" class="form-control" onchange="calculateCalories()">
+                                <option value="">Select...</option>
+                                <option value="1.2">Sedentary (little/no exercise)</option>
+                                <option value="1.375">Lightly Active (1-3 days/week)</option>
+                                <option value="1.55">Moderately Active (3-5 days/week)</option>
+                                <option value="1.725">Very Active (6-7 days/week)</option>
+                                <option value="1.9">Extremely Active (2x per day)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Your Goal</label>
+                            <select id="goal" class="form-control" onchange="calculateCalories()">
+                                <option value="">Select...</option>
+                                <option value="loss">Fat Loss (-500 cal deficit)</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="gain">Muscle Gain (+500 cal surplus)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--color-surface); padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                        <p style="margin: 0 0 10px 0;"><strong>Estimated Daily Calories:</strong></p>
+                        <div style="font-size: 2.2em; color: var(--color-primary); font-weight: bold;" id="calorieResult">—</div>
+                        <p style="margin: 10px 0 0 0; color: var(--color-text-secondary); font-size: 0.9em;" id="calorieNote"></p>
+                    </div>
+
+                    <h3>Choose Your Macro Split</h3>
+                    <p style="color: var(--color-text-secondary); margin-bottom: 15px;">Select a preset that matches your preference, or create custom:</p>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                        <button class="btn btn--secondary" onclick="setMacroPreset('high-protein')" style="text-align: left;">
+                            <div style="font-weight: 600;">High Protein</div>
+                            <div style="font-size: 0.85em;">35% Protein / 40% Carbs / 25% Fat</div>
+                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 5px;">Best for: Muscle gain, fat loss</div>
+                        </button>
+                        <button class="btn btn--secondary" onclick="setMacroPreset('moderate-protein')" style="text-align: left;">
+                            <div style="font-weight: 600;">Moderate Protein</div>
+                            <div style="font-size: 0.85em;">30% Protein / 45% Carbs / 25% Fat</div>
+                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 5px;">Best for: Balanced approach</div>
+                        </button>
+                        <button class="btn btn--secondary" onclick="setMacroPreset('high-carb')" style="text-align: left;">
+                            <div style="font-weight: 600;">High Carb</div>
+                            <div style="font-size: 0.85em;">25% Protein / 55% Carbs / 20% Fat</div>
+                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 5px;">Best for: Endurance, high activity</div>
+                        </button>
+                        <button class="btn btn--secondary" onclick="setMacroPreset('low-carb')" style="text-align: left;">
+                            <div style="font-weight: 600;">Low Carb</div>
+                            <div style="font-size: 0.85em;">35% Protein / 30% Carbs / 35% Fat</div>
+                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 5px;">Best for: Satiety preference</div>
+                        </button>
+                        <button class="btn btn--secondary" onclick="setMacroPreset('low-fat')" style="text-align: left;">
+                            <div style="font-weight: 600;">Low Fat</div>
+                            <div style="font-size: 0.85em;">35% Protein / 50% Carbs / 15% Fat</div>
+                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 5px;">Best for: Lean gains</div>
+                        </button>
+                        <button class="btn btn--secondary" onclick="toggleCustom()" style="text-align: left;">
+                            <div style="font-weight: 600;">Custom Split</div>
+                            <div style="font-size: 0.85em;">Build your own macros</div>
+                            <div style="font-size: 0.75em; color: var(--color-text-secondary); margin-top: 5px;">Click to adjust</div>
+                        </button>
+                    </div>
+
+                    <div id="customMacros" style="display: none; background: var(--color-surface); padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                        <p style="margin-top: 0;"><strong>Adjust Your Custom Macros (%):</strong></p>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;">
+                            <div class="form-group">
+                                <label class="form-label">Protein %</label>
+                                <input type="range" id="proteinPercent" min="20" max="45" value="30" class="form-control" oninput="updateCustomMacros()" style="padding: 5px;">
+                                <div style="text-align: center; margin-top: 5px; color: var(--color-primary); font-weight: 600;" id="proteinDisplay">30%</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Carbs %</label>
+                                <input type="range" id="carbsPercent" min="20" max="60" value="45" class="form-control" oninput="updateCustomMacros()" style="padding: 5px;">
+                                <div style="text-align: center; margin-top: 5px; color: var(--color-primary); font-weight: 600;" id="carbsDisplay">45%</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Fat %</label>
+                                <input type="range" id="fatPercent" min="15" max="40" value="25" class="form-control" oninput="updateCustomMacros()" style="padding: 5px;">
+                                <div style="text-align: center; margin-top: 5px; color: var(--color-primary); font-weight: 600;" id="fatDisplay">25%</div>
+                            </div>
+                        </div>
+                        <p style="margin: 10px 0 0 0; font-size: 0.9em; color: var(--color-text-secondary);" id="percentWarning"></p>
+                    </div>
+
+                    <div style="background: var(--color-surface); padding: 15px; border-radius: 6px;">
+                        <h3 style="margin-top: 0;">Your Daily Macros</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div class="stat-box">
+                                <div style="font-size: 1.4em; color: var(--color-success); font-weight: bold;" id="proteinGrams">—g</div>
+                                <div class="stat-label">Protein<br><small id="proteinCals">— calories</small></div>
+                            </div>
+                            <div class="stat-box">
+                                <div style="font-size: 1.4em; color: var(--color-primary); font-weight: bold;" id="carbsGrams">—g</div>
+                                <div class="stat-label">Carbs<br><small id="carbsCals">— calories</small></div>
+                            </div>
+                            <div class="stat-box">
+                                <div style="font-size: 1.4em; color: var(--color-warning); font-weight: bold;" id="fatGrams">—g</div>
+                                <div class="stat-label">Fat<br><small id="fatCals">— calories</small></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="callout">
+                    <strong>📌 How to Use These Numbers:</strong> Track your intake using MyFitnessPal or Cronometer. Aim to hit these targets ±5% daily. Small adjustments based on how you feel = better long-term adherence.
+                </div>
+
+                <h3>Calorie &amp; Macro FAQs</h3>
+
+                <div class="faq">
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Why do my calorie needs vary? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Multiple Factors Affect Daily Burn:</strong></p>
+                            <ul>
+                                <li><strong>Basal Metabolic Rate (BMR):</strong> Calories you burn at rest (varies by age, gender, muscle mass)</li>
+                                <li><strong>Activity Level:</strong> HIIT, heavy lifting, and daily movement all increase burn</li>
+                                <li><strong>Thermic Effect:</strong> Protein burns ~20% of calories during digestion (carbs/fat ~5-10%)</li>
+                                <li><strong>Adaptive Thermogenesis:</strong> Your body adapts to prolonged deficits—metabolism slows slightly</li>
+                                <li><strong>Hormones &amp; Stress:</strong> Cortisol, sleep, menstrual cycle all affect calorie expenditure</li>
+                            </ul>
+                            <p><strong>Why This Matters:</strong> The calculator gives you a starting point. Track your weight for 2-3 weeks. If it's not changing as expected, adjust by ±100-200 calories.</p>
+                            <div class="source">Source: Alan Aragon, Andrew Coates</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">How precise do I need to be with macros? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Precision ≠ Better Results.</strong> Overthinking is a common trap.</p>
+                            <p><strong>Good Enough Standard:</strong></p>
+                            <ul>
+                                <li>Hit your calorie target within ±100 calories</li>
+                                <li>Hit your protein within ±10 grams</li>
+                                <li>Carbs &amp; fat can vary more freely (they're less critical to track precisely)</li>
+                            </ul>
+                            <p><strong>Example:</strong> If you need 2000 calories / 150g protein / 200g carbs / 67g fat:</p>
+                            <ul>
+                                <li>✅ Hitting 1950 cal, 148g protein, 205g carbs, 65g fat = perfect</li>
+                                <li>✅ Hitting 2050 cal, 160g protein, 190g carbs, 70g fat = still great</li>
+                                <li>❌ Hitting 1800 cal, 100g protein, 250g carbs, 50g fat = too far off</li>
+                            </ul>
+                            <p><strong>Strategy:</strong> Track for 2-3 weeks to learn portion sizes, then you can eyeball it without obsessing.</p>
+                            <div class="source">Source: Precision Nutrition, Alan Aragon</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">Should I eat the same macros every single day? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>Not Required, But Helpful for Consistency.</strong></p>
+                            <p><strong>Why Some Variation is Fine:</strong></p>
+                            <ul>
+                                <li>Your body averages intake over weeks, not days</li>
+                                <li>Some days you might want higher carbs (before hard workouts)</li>
+                                <li>Some days higher fat (on rest days, lower activity)</li>
+                                <li>Total weekly intake matters more than daily perfection</li>
+                            </ul>
+                            <p><strong>Practical Approach:</strong></p>
+                            <ul>
+                                <li><strong>Training Days:</strong> Higher carbs (around workouts), moderate fat</li>
+                                <li><strong>Rest Days:</strong> Slightly lower carbs, slightly higher fat (still hitting protein)</li>
+                                <li><strong>Total Weekly Calories &amp; Protein:</strong> Should be consistent</li>
+                            </ul>
+                            <p><strong>Example Weekly Pattern:</strong></p>
+                            <ul>
+                                <li>M-F (training days): 2000 cal each = 10,000 cal</li>
+                                <li>Sat-Sun (lighter days): 1800 cal each = 3,600 cal</li>
+                                <li>Weekly total: 13,600 cal (average 1,943/day—close to your target)</li>
+                            </ul>
+                            <div class="source">Source: Layne Norton, Alan Aragon</div>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question" onclick="toggleFAQ(this)">What if I miscounted calories and went over? <span>▶</span></div>
+                        <div class="faq-answer">
+                            <p><strong>One High-Calorie Day Won't Ruin Your Progress.</strong></p>
+                            <p><strong>The Math:</strong> To gain 1 pound of fat, you need a 3,500 calorie surplus. One meal at +500 calories won't do it.</p>
+                            <p><strong>What Actually Happens:</strong></p>
+                            <ul>
+                                <li>Extra calories = extra water retention and food in your stomach (temporary weight)</li>
+                                <li>This reverses within 3-5 days if you return to normal intake</li>
+                                <li>Your weight scale can fluctuate 2-5 pounds daily from sodium, glycogen, and hydration</li>
+                            </ul>
+                            <p><strong>Smart Response:</strong></p>
+                            <ul>
+                                <li>Don't "compensate" by eating less the next day (creates inconsistency)</li>
+                                <li>Just return to normal tomorrow</li>
+                                <li>One meal doesn't define your week or month</li>
+                                <li>Focus on consistency over perfection</li>
+                            </ul>
+                            <p><strong>Long-Term Perspective:</strong> People who obsess over single days tend to binge-restrict cycles. People who are flexible with ±100 calories typically see better results.</p>
+                            <div class="source">Source: Alan Aragon, Layne Norton</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PROTEIN SOURCES TAB -->
+        <div id="protein" class="tab-content">
+            <div class="card">
+                <h2>Complete Protein Sources</h2>
+
+                <div class="callout">
+                    <strong>🎯 Aim for 0.4 g/kg per meal across 4 meals minimum</strong> – This maximizes muscle protein synthesis while using amino acids efficiently.
+                </div>
+
+                <h3>Omnivore Protein Sources</h3>
+                <table class="protein-table">
+                    <tr>
+                        <th>Source</th>
+                        <th>Protein per 100g</th>
+                        <th>Quality</th>
+                        <th>Best Use</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Chicken Breast</strong></td>
+                        <td>31g</td>
+                        <td>Complete (all 9 AAs)</td>
+                        <td>Versatile, lean</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Beef</strong></td>
+                        <td>26g</td>
+                        <td>Complete (all 9 AAs)</td>
+                        <td>Iron-rich, micronutrients</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Fish/Salmon</strong></td>
+                        <td>25g</td>
+                        <td>Complete (all 9 AAs)</td>
+                        <td>Omega-3s, vitamin D</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Eggs (whole)</strong></td>
+                        <td>13g per 100g (2 large)</td>
+                        <td>Complete (gold standard)</td>
+                        <td>Fast absorption, choline</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Greek Yogurt</strong></td>
+                        <td>10g per 100g</td>
+                        <td>Complete (all 9 AAs)</td>
+                        <td>Snack, probiotics</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cottage Cheese</strong></td>
+                        <td>11g per 100g</td>
+                        <td>Complete (all 9 AAs)</td>
+                        <td>Casein protein, slow-release</td>
+                    </tr>
+                </table>
+
+                <h3>Vegetarian Protein Sources</h3>
+                <table class="protein-table">
+                    <tr>
+                        <th>Source</th>
+                        <th>Protein per 100g</th>
+                        <th>Complete?</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Tempeh</strong></td>
+                        <td>20.7g</td>
+                        <td>✓ Complete</td>
+                        <td>Fermented soy, highest protein soy product</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Tofu (firm)</strong></td>
+                        <td>17g</td>
+                        <td>✓ Complete</td>
+                        <td>Versatile, absorbs flavors</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Edamame</strong></td>
+                        <td>11g</td>
+                        <td>✓ Complete</td>
+                        <td>Whole soy bean, nutrient-dense</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hemp Seeds</strong></td>
+                        <td>30g</td>
+                        <td>✓ Complete</td>
+                        <td>All 9 AAs, excellent for smoothies</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Quinoa</strong></td>
+                        <td>8g (per cup cooked)</td>
+                        <td>✓ Complete</td>
+                        <td>All 20 AAs, magnesium-rich</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Nutritional Yeast</strong></td>
+                        <td>8g per tablespoon</td>
+                        <td>✓ Complete</td>
+                        <td>B12 fortified (vegan), cheesy flavor</td>
+                    </tr>
+                </table>
+
+                <h3>Vegan Protein Sources</h3>
+                <table class="protein-table">
+                    <tr>
+                        <th>Source</th>
+                        <th>Protein per 100g</th>
+                        <th>Complete?</th>
+                        <th>Strategy</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Lentils</strong></td>
+                        <td>25g (dry)</td>
+                        <td>✗ (low methionine)</td>
+                        <td>Pair with grains or seeds</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chickpeas</strong></td>
+                        <td>19g (dry)</td>
+                        <td>✗ (low methionine)</td>
+                        <td>Combine with whole grains (pita+hummus)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Black Beans</strong></td>
+                        <td>15g (dry)</td>
+                        <td>✗ (low methionine)</td>
+                        <td>Mix with rice or quinoa for complete protein</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Peanuts</strong></td>
+                        <td>25.8g</td>
+                        <td>✗ (low lysine)</td>
+                        <td>Pair with legumes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pumpkin Seeds</strong></td>
+                        <td>24.4g</td>
+                        <td>✗ (low methionine)</td>
+                        <td>Mix with oats or soy products</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Spirulina</strong></td>
+                        <td>60g per 100g</td>
+                        <td>✓ Complete</td>
+                        <td>1 tbsp = 4g protein, add to smoothies</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chia Seeds</strong></td>
+                        <td>17g</td>
+                        <td>✓ Complete</td>
+                        <td>4g per 2 tbsp, excellent omega-3s</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Buckwheat</strong></td>
+                        <td>13g (dry)</td>
+                        <td>✓ Complete</td>
+                        <td>All essential AAs, gluten-free</td>
+                    </tr>
+                </table>
+
+                <div class="callout warning">
+                    <strong>⚠️ For Vegans:</strong> You'll need slightly more plant protein per meal (25–30g vs. 20–25g). Mix different sources throughout the day to ensure all essential amino acids. Total daily intake matters more than perfection in a single meal.
+                </div>
+
+                <h3>Vegan Protein Combinations (Complete Proteins)</h3>
+                <ul>
+                    <li class="list-item"><strong>Rice + Beans:</strong> Rice is low in lysine but high in methionine; beans are opposite</li>
+                    <li class="list-item"><strong>Pita + Hummus:</strong> Wheat + chickpeas = complete amino acid profile</li>
+                    <li class="list-item"><strong>Oats + Pumpkin Seeds:</strong> Balanced amino acid distribution</li>
+                    <li class="list-item"><strong>Lentils + Sesame Seeds:</strong> Seeds provide methionine that lentils lack</li>
+                    <li class="list-item"><strong>Soy Products (Tempeh/Tofu) + Any Grain:</strong> Soy is already complete</li>
+                </ul>
+
+                <div class="source">Sources: VegPlate for Sports, Alan Aragon, Dietary Protein and Amino Acids in Vegetarian Diets review</div>
+            </div>
+        </div>
+
+        <!-- FIBER SOURCES TAB -->
+        <div id="fiber" class="tab-content">
+            <div class="card">
+                <h2>Fiber Sources for Athletes</h2>
+
+                <div class="callout">
+                    <strong>🎯 Target: 30g per day</strong> – Build up gradually over 6 weeks if currently low. Use 14g fiber per 1,000 calories as a baseline.
+                </div>
+
+                <h3>High-Fiber Foods</h3>
+                <table class="fiber-table">
+                    <tr>
+                        <th>Food</th>
+                        <th>Fiber per Serving</th>
+                        <th>Also Provides</th>
+                        <th>Best Use</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Black Beans (1 cup)</strong></td>
+                        <td>15g</td>
+                        <td>15g protein</td>
+                        <td>Base for meals, complete protein combo</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Lentils (1 cup cooked)</strong></td>
+                        <td>15g</td>
+                        <td>18g protein</td>
+                        <td>Soups, sides, high bioavailability</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Raspberries (1 cup)</strong></td>
+                        <td>8g</td>
+                        <td>Low calorie, antioxidants</td>
+                        <td>Snack, smoothies</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Chia Seeds (1 oz)</strong></td>
+                        <td>10g</td>
+                        <td>9g protein, omega-3s</td>
+                        <td>Pudding, smoothies, toppings</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sweet Potato (1 medium)</strong></td>
+                        <td>4g</td>
+                        <td>Vitamin A, potassium</td>
+                        <td>Post-workout carbs, nutrient density</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Broccoli (1 cup)</strong></td>
+                        <td>5g</td>
+                        <td>4g protein, calcium</td>
+                        <td>Vegetable base, micronutrient density</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Almonds (1 oz)</strong></td>
+                        <td>3.5g</td>
+                        <td>6g protein, vitamin E</td>
+                        <td>Snack, portable</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Pear (1 medium)</strong></td>
+                        <td>6g</td>
+                        <td>Low glycemic, natural sugars</td>
+                        <td>Snack, easy to eat</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Brown Rice (1 cup cooked)</strong></td>
+                        <td>3.5g</td>
+                        <td>5g protein, B vitamins</td>
+                        <td>Base carb, combines with legumes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Banana (1 medium)</strong></td>
+                        <td>3g</td>
+                        <td>Natural electrolytes, fast carbs</td>
+                        <td>Pre/post workout</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Quinoa (1 cup cooked)</strong></td>
+                        <td>5g</td>
+                        <td>8g complete protein</td>
+                        <td>Complete protein grain, versatile</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Green Peas (1 cup)</strong></td>
+                        <td>9g</td>
+                        <td>8g protein, carbs</td>
+                        <td>Side dish, frozen convenient</td>
+                    </tr>
+                </table>
+
+                <h3>Daily Fiber Goals by Calorie Intake</h3>
+                <div class="grid">
+                    <div class="stat-box">
+                        <div class="stat-number">2000 cal</div>
+                        <div class="stat-label">≈ 28g fiber</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">2500 cal</div>
+                        <div class="stat-label">≈ 35g fiber</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">3000 cal</div>
+                        <div class="stat-label">≈ 42g fiber</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">3500 cal</div>
+                        <div class="stat-label">≈ 49g fiber</div>
+                    </div>
+                </div>
+
+                <h3>Fiber Ramp-Up Protocol</h3>
+                <div class="list-item">
+                    <strong>Week 1–2:</strong> 15–18g/day (assess current tolerance)
+                </div>
+                <div class="list-item">
+                    <strong>Week 3–4:</strong> 20–22g/day (gradual increase)
+                </div>
+                <div class="list-item">
+                    <strong>Week 5–6:</strong> 25–30g/day (target reached)
+                </div>
+
+                <div class="callout warning">
+                    <strong>⚠️ Timing Matters:</strong> Avoid high fiber 2–3 hours before intense training. Fiber slows digestion and won't replenish muscle glycogen during the workout. Eat your starchy carbs with lower fiber before training, then add fiber post-workout.
+                </div>
+
+                <h3>Signs You Need More Fiber</h3>
+                <ul>
+                    <li class="list-item">Irregular digestion or constipation</li>
+                    <li class="list-item">Poor nutrient absorption (check energy levels)</li>
+                    <li class="list-item">Less stable blood sugar throughout the day</li>
+                    <li class="list-item">Poor gut health (bloating, gas, discomfort)</li>
+                </ul>
+
+                <h3>Signs You Have Too Much Fiber</h3>
+                <ul>
+                    <li class="list-item">Excessive bloating or gas</li>
+                    <li class="list-item">Loose stools or diarrhea</li>
+                    <li class="list-item">Severe digestive discomfort during training</li>
+                    <li class="list-item">Water retention from slow digestion</li>
+                </ul>
+
+                <div class="source">Sources: Brad Schoenfeld, USDA Guidelines, Journal of Sports Sciences 2025</div>
+            </div>
+        </div>
+
+        <!-- GROCERY LIST TAB -->
+        <div id="groceries" class="tab-content">
+            <div class="card">
+                <h2>Smart Grocery List for Clients</h2>
+
+                <div class="callout">
+                    <strong>💡 Strategy:</strong> Shop the perimeter of the grocery store (fresh foods). Fill your cart with protein sources first, then vegetables, whole grains, and healthy fats.
+                </div>
+
+                <h3>Proteins (Pick 3–4)</h3>
+                <ul>
+                    <li class="list-item"><strong>Chicken:</strong> Bulk buy breasts, freeze portions</li>
+                    <li class="list-item"><strong>Ground Turkey or Beef:</strong> Versatile for quick meals</li>
+                    <li class="list-item"><strong>Eggs:</strong> Cheap, complete protein, versatile</li>
+                    <li class="list-item"><strong>Greek Yogurt:</strong> Snack + breakfast base</li>
+                    <li class="list-item"><strong>Cottage Cheese:</strong> High protein, casein for slow release</li>
+                    <li class="list-item"><strong>Canned Fish:</strong> Convenient, affordable omega-3s</li>
+                    <li class="list-item"><strong>Tempeh/Tofu:</strong> For vegetarian clients</li>
+                    <li class="list-item"><strong>Protein Powder:</strong> Convenient tool (not primary source)</li>
+                </ul>
+
+                <h3>Vegetables (Aim for Variety + Color)</h3>
+                <ul>
+                    <li class="list-item"><strong>Broccoli, Cauliflower, Asparagus:</strong> High fiber, low calorie</li>
+                    <li class="list-item"><strong>Spinach, Kale:</strong> Micronutrient density</li>
+                    <li class="list-item"><strong>Bell Peppers:</strong> Vitamin C, versatile</li>
+                    <li class="list-item"><strong>Carrots, Sweet Potatoes:</strong> Vitamin A, filling</li>
+                    <li class="list-item"><strong>Zucchini, Green Beans:</strong> Low calorie, high volume</li>
+                    <li class="list-item"><strong>Frozen Mixed Vegetables:</strong> Budget-friendly, just as nutritious as fresh</li>
+                </ul>
+
+                <h3>Whole Grains &amp; Carbs</h3>
+                <ul>
+                    <li class="list-item"><strong>Brown Rice or Jasmine Rice:</strong> Base for most meals</li>
+                    <li class="list-item"><strong>Oats:</strong> Breakfast, stable blood sugar</li>
+                    <li class="list-item"><strong>Quinoa:</strong> Complete protein grain</li>
+                    <li class="list-item"><strong>Sweet Potatoes:</strong> Nutrient-dense carbs</li>
+                    <li class="list-item"><strong>Whole Wheat Bread:</strong> Choose high fiber (3+ grams/slice)</li>
+                    <li class="list-item"><strong>Pasta (whole wheat):</strong> Quick carbs post-workout</li>
+                </ul>
+
+                <h3>Legumes (Dried or Canned)</h3>
+                <ul>
+                    <li class="list-item"><strong>Black Beans, Lentils, Chickpeas:</strong> Cheap protein + fiber</li>
+                    <li class="list-item">Buy dried if budget-conscious (cheaper), canned if convenience matters</li>
+                    <li class="list-item">Drain and rinse canned to reduce sodium</li>
+                </ul>
+
+                <h3>Fats &amp; Oils</h3>
+                <ul>
+                    <li class="list-item"><strong>Olive Oil:</strong> Salads, general cooking</li>
+                    <li class="list-item"><strong>Coconut Oil or Butter:</strong> Cooking at higher heat</li>
+                    <li class="list-item"><strong>Nuts &amp; Seeds:</strong> Almonds, peanut butter, chia, flax</li>
+                    <li class="list-item"><strong>Avocado:</strong> Micronutrient-dense fat</li>
+                </ul>
+
+                <h3>Fruits</h3>
+                <ul>
+                    <li class="list-item"><strong>Bananas:</strong> Pre-workout carbs, cheap, portable</li>
+                    <li class="list-item"><strong>Berries (frozen):</strong> Fiber, antioxidants, long shelf life</li>
+                    <li class="list-item"><strong>Apples:</strong> Fiber, natural sugars, portable</li>
+                    <li class="list-item"><strong>Oranges/Citrus:</strong> Vitamin C, hydration</li>
+                </ul>
+
+                <h3>Pantry Staples</h3>
+                <ul>
+                    <li class="list-item"><strong>Salt, Pepper, Spices:</strong> Flavor without calories</li>
+                    <li class="list-item"><strong>Canned Broth:</strong> Base for soups</li>
+                    <li class="list-item"><strong>Soy Sauce or Tamari:</strong> Flavor boost</li>
+                    <li class="list-item"><strong>Hot Sauce:</strong> Zero calorie flavor</li>
+                </ul>
+
+                <div class="callout">
+                    <strong>💰 Budget Tip:</strong> Buy proteins and vegetables in bulk when on sale. Freeze what you don't use immediately. Frozen vegetables are just as nutritious and often cheaper than fresh.
+                </div>
+
+                <div class="source">Source: Andrew Coates, Alan Aragon nutrition guidelines</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        function toggleFAQ(element) {
+            const answer = element.nextElementSibling;
+            answer.classList.toggle('active');
+
+            // Rotate the arrow
+            const arrow = element.querySelector('span');
+            if (answer.classList.contains('active')) {
+                arrow.style.transform = 'rotate(90deg)';
+            } else {
+                arrow.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        function calculateCalories() {
+            const weight = parseFloat(document.getElementById('bodyWeight').value);
+            const activity = parseFloat(document.getElementById('activityLevel').value);
+            const goal = document.getElementById('goal').value;
+
+            if (!weight || !activity || !goal) {
+                document.getElementById('calorieResult').textContent = '—';
+                document.getElementById('calorieNote').textContent = '';
+                return;
+            }
+
+            // Harris-Benedict equation for BMR
+            const bmr = 88.362 + (13.397 * weight) + (4.799 * (weight / 2.205 * 0.0254)) - (5.677 * 30);
+            let tdee = bmr * activity;
+
+            let adjustedCalories, note;
+            if (goal === 'loss') {
+                adjustedCalories = Math.round(tdee - 500);
+                note = '500 cal deficit for steady fat loss (~1 lb/week)';
+            } else if (goal === 'gain') {
+                adjustedCalories = Math.round(tdee + 500);
+                note = '500 cal surplus for muscle gain (~1 lb/week)';
+            } else {
+                adjustedCalories = Math.round(tdee);
+                note = 'Maintenance calories';
+            }
+
+            document.getElementById('calorieResult').textContent = adjustedCalories;
+            document.getElementById('calorieNote').textContent = note;
+
+            // Calculate macros using current selection
+            updateMacroDisplay(adjustedCalories);
+        }
+
+        function setMacroPreset(preset) {
+            let protein, carbs, fat;
+
+            switch(preset) {
+                case 'high-protein':
+                    protein = 35; carbs = 40; fat = 25;
+                    break;
+                case 'moderate-protein':
+                    protein = 30; carbs = 45; fat = 25;
+                    break;
+                case 'high-carb':
+                    protein = 25; carbs = 55; fat = 20;
+                    break;
+                case 'low-carb':
+                    protein = 35; carbs = 30; fat = 35;
+                    break;
+                case 'low-fat':
+                    protein = 35; carbs = 50; fat = 15;
+                    break;
+            }
+
+            document.getElementById('proteinPercent').value = protein;
+            document.getElementById('carbsPercent').value = carbs;
+            document.getElementById('fatPercent').value = fat;
+            document.getElementById('customMacros').style.display = 'none';
+
+            updateCustomMacros();
+        }
+
+        function toggleCustom() {
+            const custom = document.getElementById('customMacros');
+            custom.style.display = custom.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function updateCustomMacros() {
+            const protein = parseInt(document.getElementById('proteinPercent').value);
+            const carbs = parseInt(document.getElementById('carbsPercent').value);
+            const fat = parseInt(document.getElementById('fatPercent').value);
+
+            document.getElementById('proteinDisplay').textContent = protein + '%';
+            document.getElementById('carbsDisplay').textContent = carbs + '%';
+            document.getElementById('fatDisplay').textContent = fat + '%';
+
+            const total = protein + carbs + fat;
+            const warning = document.getElementById('percentWarning');
+            if (total !== 100) {
+                warning.textContent = `⚠️ Total: ${total}% (must equal 100%)`;
+                warning.style.color = 'var(--color-warning)';
+                return;
+            } else {
+                warning.textContent = '✓ Split is valid!';
+                warning.style.color = 'var(--color-success)';
+            }
+
+            const calories = parseInt(document.getElementById('calorieResult').textContent);
+            if (!isNaN(calories) && calories > 0) {
+                updateMacroDisplay(calories, protein, carbs, fat);
+            }
+        }
+
+        function updateMacroDisplay(calories, proteinPercent, carbsPercent, fatPercent) {
+            // Use provided percentages or calculate from UI
+            if (!proteinPercent) {
+                proteinPercent = parseInt(document.getElementById('proteinPercent').value);
+                carbsPercent = parseInt(document.getElementById('carbsPercent').value);
+                fatPercent = parseInt(document.getElementById('fatPercent').value);
+            }
+
+            const proteinCalories = calories * (proteinPercent / 100);
+            const carbsCalories = calories * (carbsPercent / 100);
+            const fatCalories = calories * (fatPercent / 100);
+
+            const proteinGrams = Math.round(proteinCalories / 4);
+            const carbsGrams = Math.round(carbsCalories / 4);
+            const fatGrams = Math.round(fatCalories / 9);
+
+            document.getElementById('proteinGrams').textContent = proteinGrams + 'g';
+            document.getElementById('proteinCals').textContent = Math.round(proteinCalories) + ' calories';
+
+            document.getElementById('carbsGrams').textContent = carbsGrams + 'g';
+            document.getElementById('carbsCals').textContent = Math.round(carbsCalories) + ' calories';
+
+            document.getElementById('fatGrams').textContent = fatGrams + 'g';
+            document.getElementById('fatCals').textContent = Math.round(fatCalories) + ' calories';
+        }
+    </script>
+</body>
+</html>
